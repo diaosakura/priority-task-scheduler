@@ -50,9 +50,10 @@ public class PriorityTask implements Runnable, Comparable<PriorityTask>{
         // 再按优先级排序
         return Integer.compare(this.priority, other.priority);
     }
-
+    
     public long getExecuteTime() {
         return executeTime;
     }
+
 
 }
