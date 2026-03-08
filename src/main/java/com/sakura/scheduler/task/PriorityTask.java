@@ -30,7 +30,7 @@ public class PriorityTask implements Runnable, Comparable<PriorityTask>{
                     " | Priority: " + priority +
                     " | Thread: " + Thread.currentThread().getName());
 
-            Thread.sleep(1000); // 模拟任务执行
+            Thread.sleep(10000); // 模拟任务执行
 
             status.set(TaskStatus.SUCCESS);
         } catch (Exception e) {
@@ -41,14 +41,18 @@ public class PriorityTask implements Runnable, Comparable<PriorityTask>{
     @Override
     public int compareTo(PriorityTask other) {
 
-        // 先按执行时间排序（延迟任务）
-        int timeCompare = Long.compare(this.executeTime, other.executeTime);
-        if (timeCompare != 0) {
-            return timeCompare;
+        // 1. 首要条件：先按 AI 预估的优先级排序 (数值越小，优先级越高)
+        int priorityCompare = Integer.compare(this
+                .priority, other.priority);
+        if (priorityCompare != 0
+        ) {
+            return
+                    priorityCompare;
         }
 
-        // 再按优先级排序
-        return Integer.compare(this.priority, other.priority);
+        // 2. 次要条件：如果两个任务优先级完全一样，再按提交时间排序（先提交的先执行，防止饿死）
+        return Long.compare(this
+                .executeTime, other.executeTime);
     }
     
     public long getExecuteTime() {

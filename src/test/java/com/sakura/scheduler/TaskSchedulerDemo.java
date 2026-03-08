@@ -35,65 +35,41 @@ public class TaskSchedulerDemo {
     {
         // 3. 定义优先阻塞队列 (权重调度的核心)
         PriorityBlockingQueue<Runnable> queue =
-                new
-                        PriorityBlockingQueue<>();
+                new PriorityBlockingQueue<>();
 
         // 4. 自定义线程池 (JUC 核心)
-        ThreadPoolExecutor executor =
-                new
-                        ThreadPoolExecutor(
-                        2, 4, 60
-                        , TimeUnit.SECONDS,
-                        (BlockingQueue) queue,
-                        new ThreadPoolExecutor.CallerRunsPolicy() // 简单的拒绝策略
-                );
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 4, 60, TimeUnit.SECONDS, (BlockingQueue) queue, new ThreadPoolExecutor.CallerRunsPolicy() );// 简单的拒绝策略
 
         // 5. 模拟 AI 分配权重并提交任务
-        System.out.println(
-                "--- AI 识别任务画像，分配动态优先级 ---"
-        );
-        submitTask(executor,
-                "查询报表 (大型任务)", 10);  // 优先级低
-        submitTask(executor,
-                "短信验证码 (即时任务)", 99); // 优先级极高
-        submitTask(executor,
-                "数据清洗 (中型任务)", 50);  // 优先级中
+        System.out.println("--- AI 识别任务画像，分配动态优先级 ---");
+        submitTask(executor, "查询报表 (大型任务)", 10);  // 优先级低
+        submitTask(executor, "短信验证码 (即时任务)", 99); // 优先级极高
+        submitTask(executor, "数据清洗 (中型任务)", 50);  // 优先级中
 
         executor.shutdown();
     }
 
     private static void submitTask(ThreadPoolExecutor executor, String name, int aiPriority)
     {
-        AiTask task =
-                new
-                        AiTask(name, aiPriority);
-
-        executor.execute(() -> {
+        AiTask task = new AiTask(name, aiPriority);
+        executor.execute(() -> { 
             // 使用 CAS 尝试锁定任务状态
-            if
-            (task.tryStart()) {
-                System.out.println(
-                        "[执行中] " + task.taskName + " | 权重: " + task.priority + " | 线程: "
-                                + Thread.currentThread().getName());
+            if (task.tryStart()) {
+                System.out.println("[执行中] " + task.taskName + " | 权重: " + task.priority + " | 线程: " + Thread.currentThread().getName());
                 try
                 {
-                    Thread.sleep(
-                            1000); // 模拟耗时
+                    Thread.sleep(1000); // 模拟耗时
                 }
                 catch
                 (InterruptedException e) {
                     e.printStackTrace();
                 }
                 task.status.set(COMPLETED);
-                System.out.println(
-                        "[已完成] "
-                                + task.taskName);
+                System.out.println("[已完成] " + task.taskName);
             }
             else
             {
-                System.out.println(
-                        "[跳过] 任务已被其他线程抢占: "
-                                + task.taskName);
+                System.out.println("[跳过] 任务已被其他线程抢占: " + task.taskName);
             }
         });
     }
