@@ -19,7 +19,7 @@ public class TaskController {
      * 提交任务接口
      * 测试 URL: POST http://localhost:8080/api/v1/tasks/submit?taskName=生成年度报表
      */
-    @GetMapping("/submit")
+    @PostMapping("/submit")
     public ResponseEntity<Map<String, Object>> submitTask(
             @RequestParam String taskName,
             @RequestParam(defaultValue = "0") long delayMillis) {

@@ -35,11 +35,11 @@ public class TaskDispatchService {
         // 2. 生成任务唯一 ID（第一步就生成，为了极速响应前端）
         String taskId = "TASK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        // 3. 【核心高光：异步非阻塞调用 AI】
-        // 主线程不再傻等 AI 返回，直接调用 Async 方法，把后续动作写在 thenAccept 回调里
+        // 3. 异步非阻塞调用 AI
+        // 主线程不等 AI 返回，直接调用 Async 方法，把后续动作写在 thenAccept 回调里
         aiAnalysisService.predictPriorityAsync(taskName).thenAccept(priority -> {
 
-            // 下面这坨代码，是在 AI 评估完成后，由专门的 I/O 线程池来执行的
+            // 在 AI 评估完成后，由专门的 I/O 线程池来执行的
             if (priority == 100) {
                 int currentCoreSize = taskExecutor.getCorePoolSize();
                 if (currentCoreSize < 4) {
